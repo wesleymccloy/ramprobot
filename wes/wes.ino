@@ -26,53 +26,60 @@ int counterAverage = 0;
 
 void loop() {
   // put your main code here, to run repeatedly:
-   delay(50);
+   delay(15);
    unsigned int left = leftSonar.ping_cm();
-//   Serial.print("left: ");
-//   Serial.print(uS);
-//   Serial.print("cm ");
-   delay(50);
+   delay(15);
    unsigned int right = rightSonar.ping_cm();
-   Serial.print("left: ");
-   Serial.print(left);
-   Serial.print(" right: ");
-   Serial.println(right);  
-//   int delta = left-right;
-//   int average = (left + right)/2;
-//   if (previousAverage == average) {
-//    counterAverage++;
-//    if (counterAverage >3) {
-//      counterAverage = 0;
-//      if (threeInARowAverage == previousAverage) {
-//      } else {
-//        threeInARowAverage = previousAverage;
-//        Serial.print("average: ");
-//        Serial.print(average);
-//        Serial.print(" delta: ");
-//        Serial.println(delta);
-//      }
-//    }
-//   } else {
-//    previousAverage = average;
-//    counterAverage = 0;
-//   }
-//   if (previousDelta == delta) {
-//    counterDelta++;
-//    if (counterDelta >3) {
-//      counterDelta = 0;
-//      if (threeInARowDelta == previousDelta) {
-//      } else {
-//        threeInARowDelta = previousDelta;
-//        Serial.print("average: ");
-//        Serial.print(average);
-//        Serial.print(" delta: ");
-//        Serial.println(delta);
-//      }
-//    }
-//   } else {
-//    previousDelta = delta;
-//    counterDelta = 0;
-//   }
+//   Serial.print("left: ");
+//   Serial.print(left);
+//   Serial.print(" right: ");
+//   Serial.println(right);  
+
+   // Averaging - three in a row filter
+   int delta = left-right;
+   int average = (left + right)/2;
+   if (previousAverage == average) {
+    counterAverage++;
+    if (counterAverage >3) {
+      counterAverage = 0;
+      if (threeInARowAverage == previousAverage) {
+      } else {
+        threeInARowAverage = previousAverage;
+        Serial.print("average: ");
+        Serial.print(average);
+        Serial.print(" delta: ");
+        Serial.print(delta);
+        Serial.print(" left: ");
+        Serial.print(left);
+        Serial.print(" right: ");
+        Serial.println(right);
+      }
+    }
+   } else {
+    previousAverage = average;
+    counterAverage = 0;
+   }
+   if (previousDelta == delta) {
+    counterDelta++;
+    if (counterDelta >3) {
+      counterDelta = 0;
+      if (threeInARowDelta == previousDelta) {
+      } else {
+        threeInARowDelta = previousDelta;
+        Serial.print("average: ");
+        Serial.print(average);
+        Serial.print(" delta: ");
+        Serial.print(delta);
+        Serial.print(" left: ");
+        Serial.print(left);
+        Serial.print(" right: ");
+        Serial.println(right);
+      }
+    }
+   } else {
+    previousDelta = delta;
+    counterDelta = 0;
+   }
 
    
 //   Serial.print("right: ");
