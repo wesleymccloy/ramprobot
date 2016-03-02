@@ -9,7 +9,7 @@
 #include "ServoWayfarer.h"
 
 ServoWayfarer::ServoWayfarer(int pin, int zeroAngle, bool direction) : Servo() {
-	Servo::attach(pin);
+	//Servo::attach(pin);
 	_direction = direction;
 	_zeroAngle = zeroAngle;
 }
@@ -22,9 +22,9 @@ void ServoWayfarer::percentSpeed(int percent) {
 	if (percent == 0) {
 		Servo::write(_zeroAngle);
 	} else if (percent > 0 && percent <= 100) {
-		int angleOffset = floor((double)(percent)/100.0*(180.0-_zeroAngle));
+		angleOffset = floor((double)(percent)/100.0*(0.3*(180.0-_zeroAngle)));
 	} else if (percent < 0 && percent >= -100) {
-		int angleOffset = floor((double)(percent)/100.0*(double)(_zeroAngle));
+		angleOffset = floor((double)(percent)/100.0*((double)(_zeroAngle)*0.3));
 	}
 	Servo::write(_zeroAngle+angleOffset);
 }
