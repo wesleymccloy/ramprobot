@@ -9,7 +9,7 @@ void setup() {
 
 int pos = 0;
 void loop() {
-leftServo.percentSpeed(100);
-rightServo.percentSpeed(100);
-delay(1000);
+  leftServo.percentSpeed(100);
+  rightServo.percentSpeed(100);
+  delay(1000);
 }
