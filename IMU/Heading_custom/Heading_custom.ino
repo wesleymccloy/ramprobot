@@ -20,9 +20,8 @@ void setup() {
   //  compass.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
 
   // Calibrated values:
-  compass.m_min = (LSM303::vector<int16_t>){-2677,  -2633,  -2869};
-  compass.m_max = (LSM303::vector<int16_t>){+3278,  +3324,  +3151};
-
+  compass.m_min = (LSM303::vector<int16_t>){ -2093,  -2870,  -3099};
+  compass.m_max = (LSM303::vector<int16_t>){ +3092,  +2093,  +2206};
 }
 
 void loop() {

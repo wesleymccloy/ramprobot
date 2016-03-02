@@ -8,13 +8,14 @@
 
 #include "Arduino.h"
 
-class ServoWayfarer
+class IRWayfarer
 {
 	public:
 	IRWayfarer(int pin);
-        double linearlizeIR(); 
-        double movingAvgIR(double IRavg[], double total, int iteration, int numReadings);
-	
+  double linearizeIR(); 
+  double movingAvgIR(double IRavg[], double *total, int *iteration, int numReadings);
+	private:
+  int _pin;
 };
 
 #endif
