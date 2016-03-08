@@ -14,8 +14,13 @@
 NewPing leftSonar(TRIG_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE);
 NewPing rightSonar(TRIG_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
 
-ServoWayfarer leftServo(44, 96, 0, 6, 25, -6, -20); // pin, zeroAngle, direction, slow, fast, reverseSlow, reverseFast
-ServoWayfarer rightServo(46, 98, 1, 6, 25, -7, -25);
+// Old values before glueing
+//ServoWayfarer leftServo(44, 96, 0, 6, 25, -6, -20); // pin, zeroAngle, direction, slow, fast, reverseSlow, reverseFast
+//ServoWayfarer rightServo(46, 98, 1, 6, 25, -7, -25);
+
+// Adjusted fast speed and slow
+ServoWayfarer leftServo(44, 96, 0, 7, 17, -6, -20); // pin, zeroAngle, direction, slow, fast, reverseSlow, reverseFast
+ServoWayfarer rightServo(46, 98, 1, 6, 30, -7, -25);
 
 IRWayfarer irSensor(A0);
 
@@ -23,7 +28,7 @@ LSM303 compass;
 
 const int numReadings = 10;
 double IRAvg[numReadings];
-double total = 0;
+double total = 5000;
 int iteration = 0;
 
 void setup() {
@@ -86,13 +91,18 @@ void turnLeft90() {
 boolean test = true;
 
 void loop() {
+  delay(100);
   leftServo.fast();
   rightServo.fast();
+
+
+
   double irValue = 200;
   while (irValue > 100) {
     delay(25);
     irValue = irSensor.movingAvgIR(IRAvg, &total, &iteration, numReadings);
   }
+  delay(385);
   leftServo.zero();
   rightServo.zero();
   delay(500);
@@ -103,25 +113,44 @@ void loop() {
   boolean up = false;
   boolean down = false;
   boolean straight = false;
-  while (!up || !down || !straight) {
+  boolean mid = false;
+  leftServo.fast();
+  rightServo.fast();
+  delay(1000);
+  while (!up || !down || !straight || !mid) {
     compass.read();
-    if (compass.a.y < -5000 && compass.a.y > -11000) {
-      leftServo.slow();
-      rightServo.slow();
+    // incline
+    if (compass.a.y < -6400 && compass.a.y > -11000) {
+      leftServo.fast();
+      rightServo.fast();
       up = true;
-    } else if (compass.a.y > 5000 && compass.a.y < 11000) {
+      // decline
+    } else if (compass.a.y > 8900 && compass.a.y < 11000) {
       leftServo.reverseSlow();
       rightServo.reverseSlow();
       down = true;
-    } else {
-      leftServo.fast();
-      rightServo.fast();
-      if (up && down) {
+      // ramp
+    } else if (compass.a.y > 600 && compass.a.y < 1500) {
+      leftServo.slow();
+      rightServo.slow();
+      mid = true;
+      // ground
+    } else if (compass.a.y > 2000 && compass.a.y < 4000) {
+      leftServo.slow();
+      rightServo.slow();
+      if (up && down && mid) {
         straight = true;
       }
     }
     delay(100);
   }
+
+  leftServo.zero();
+  rightServo.zero();
+  delay(500);
+  turnLeft90();
+  delay(500);
+
   while (true) {
     unsigned int left = leftSonar.ping_cm();
     delay(25);
@@ -132,74 +161,10 @@ void loop() {
       leftServo.zero();
       rightServo.zero();
       Serial.println("HIT!");
-      while(true) {}
+      while (true) {}
     } else {
       leftServo.fast();
       rightServo.fast();
     }
   }
-
-  //  if (irValue < 100) {
-  //    turnLeft90();
-  //    delay(5000);
-  //
-  //  }
-
-  //  leftServo.zero();
-  //  rightServo.zero();
-  //  delay(5000);
-  //  leftServo.slow();
-  //  rightServo.slow();
-  //  delay(5000);
-  //  leftServo.fast();
-  //  rightServo.fast();
-  //  delay(5000);
-  //  leftServo.reverseSlow();
-  //  rightServo.reverseSlow();
-  //  delay(5000);
-  //  leftServo.reverseFast();
-  //  rightServo.reverseFast();
-  //  delay(5000);
-
-  // IMU
-  //  compass.read();
-  //  float heading = compass.heading();
-  //  if (compass.a.y < -5000 && compass.a.y > -11000) {
-  //    leftServo.percentSpeed(20);
-  //    rightServo.percentSpeed(20);
-  //  } else if (compass.a.y > 5000 && compass.a.y < 11000) {
-  //    leftServo.percentSpeed(-20);
-  //    rightServo.percentSpeed(-20);
-  //  } else {
-  //    leftServo.percentSpeed(100);
-  //    rightServo.percentSpeed(100);
-  //  }
-  //  delay(100);
-
-  //  IR stop at 100
-  //  double irValue = irSensor.movingAvgIR(IRAvg, &total, &iteration, numReadings);
-  //  if (irValue < 100) {
-  //    turnLeft90();
-  //    delay(5000);
-  //
-  //  }
-  //  delay(25);
-
-
-  // ultrasonic stop at 30cm
-  //    delay(25);
-  //    unsigned int left = leftSonar.ping_cm();
-  //    delay(25);
-  //    unsigned int right = rightSonar.ping_cm();
-  //    int average = (left+right)/2;
-  //    Serial.println(average);
-  //    if (average > 0 && left < 30 && right < 30) {
-  //          leftServo.percentSpeed(0);
-  //          rightServo.percentSpeed(0);
-  //          Serial.println("HIT!");
-  //          delay(500);
-  //    } else {
-  //      leftServo.percentSpeed(50);
-  //      rightServo.percentSpeed(50);
-  //    }
 }

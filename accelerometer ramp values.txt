@@ -1,0 +1,8 @@
+ramp up -7400  - ranges: -6400 (mostly on) -400 (slightly on)
+being pushed, goes up to -8k and down to -5k
+
+flot on ramp 600-800, up to 1k when accelerating. 
+
+down ramp: slow till 8900 ish. before was at about 7.5k
+
+ground 3000  2000-4000
