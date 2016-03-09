@@ -34,6 +34,14 @@ int iteration = 0;
 void setup() {
   Serial.begin(9600);
 
+  // Matlab comms
+  //  Serial.println('a');
+  //  char a = 'b';
+  //  while (a != 'a')
+  //  {
+  //    a = Serial.read();
+  //  }
+
   // IMU
   Wire.begin();
   compass.init();
@@ -45,8 +53,8 @@ void setup() {
     +3092,  +2093,  +2206
   };
 
-  leftServo.percentSpeed(0);
-  rightServo.percentSpeed(0);
+  leftServo.zero();
+  rightServo.zero();
   leftServo.attach(44); /// this shouldn't need to be here
   rightServo.attach(46);
   for (int i = 0; i < numReadings; i++) {
@@ -71,7 +79,7 @@ void turnLeft90() {
 
   leftServo.reverseSlow();
   rightServo.slow();
-  delay(1000);
+  delay(500);
   compass.read();
   float current = compass.heading();
   Serial.print("current: ");
@@ -88,83 +96,152 @@ void turnLeft90() {
   rightServo.zero();
 }
 
+void shittyTurn90() {
+  leftServo.reverseSlow();
+  rightServo.slow();
+  delay(1000);
+  leftServo.zero();
+  leftServo.zero();
+}
+
 boolean test = true;
 
 void loop() {
+
+  // Simple motor test
+  leftServo.slow();
+  rightServo.slow();
   delay(100);
-  leftServo.fast();
-  rightServo.fast();
 
 
 
-  double irValue = 200;
-  while (irValue > 100) {
-    delay(25);
-    irValue = irSensor.movingAvgIR(IRAvg, &total, &iteration, numReadings);
-  }
-  delay(385);
-  leftServo.zero();
-  rightServo.zero();
-  delay(500);
-  turnLeft90();
-  delay(500);
+  // To test Ultrasonic
+  //  uint8_t left = leftSonar.ping_cm();
+  //  delay(50);
+  //  uint8_t right = rightSonar.ping_cm();
+  //  delay(50);
+  //  Serial.print("left: ");
+  //  Serial.print(left);
+  //  Serial.print(" right: ");
+  //  Serial.println(right);
 
-  // IMU
-  boolean up = false;
-  boolean down = false;
-  boolean straight = false;
-  boolean mid = false;
-  leftServo.fast();
-  rightServo.fast();
-  delay(1000);
-  while (!up || !down || !straight || !mid) {
-    compass.read();
-    // incline
-    if (compass.a.y < -6400 && compass.a.y > -11000) {
-      leftServo.fast();
-      rightServo.fast();
-      up = true;
-      // decline
-    } else if (compass.a.y > 8900 && compass.a.y < 11000) {
-      leftServo.reverseSlow();
-      rightServo.reverseSlow();
-      down = true;
-      // ramp
-    } else if (compass.a.y > 600 && compass.a.y < 1500) {
-      leftServo.slow();
-      rightServo.slow();
-      mid = true;
-      // ground
-    } else if (compass.a.y > 2000 && compass.a.y < 4000) {
-      leftServo.slow();
-      rightServo.slow();
-      if (up && down && mid) {
-        straight = true;
-      }
-    }
-    delay(100);
-  }
+  // To find post
+  //  delay(1000);
+  //
+  //  leftServo.reverseSlow();
+  //  rightServo.slow();
+  //  int delta = 100;
+  //  int average = 200;
+  //  uint8_t left = 200;
+  //  uint8_t right = 200;
+  //  while (average > 180 || delta > 5) {
+  //    left = leftSonar.ping_cm();
+  //    delay(50);
+  //    right = rightSonar.ping_cm();
+  //    delay(50);
+  //    if (left == 0) {
+  //      left = 200;
+  //    }
+  //    if (right == 0) {
+  //      right = 200;
+  //    }
+  //    delta = abs(right - left);
+  //    average = (left + right) / 2;
+  //  }
+  //  leftServo.zero();
+  //  rightServo.zero();
+  //  delay(200);
+  //  leftServo.fast();
+  //  rightServo.fast();
+  //  while (left > 5 && right > 5) {
+  //    left = leftSonar.ping_cm();
+  //    delay(50);
+  //    right = rightSonar.ping_cm();
+  //    delay(50);
+  //    if (left == 0) {
+  //      left = 200;
+  //    }
+  //    if (right == 0) {
+  //      right = 200;
+  //    }
+  //  }
+  //  leftServo.zero();
+  //  rightServo.zero();
+  //  while(true) {
+  //    delay(1000);
+  //  }
 
-  leftServo.zero();
-  rightServo.zero();
-  delay(500);
-  turnLeft90();
-  delay(500);
+  // Go up and down ramp
 
-  while (true) {
-    unsigned int left = leftSonar.ping_cm();
-    delay(25);
-    unsigned int right = rightSonar.ping_cm();
-    int average = (left + right) / 2;
-    Serial.println(average);
-    if (average > 0 && left < 30 && right < 30) {
-      leftServo.zero();
-      rightServo.zero();
-      Serial.println("HIT!");
-      while (true) {}
-    } else {
-      leftServo.fast();
-      rightServo.fast();
-    }
-  }
+  //  leftServo.fast();
+  //  rightServo.fast();
+  //
+  //  double irValue = 200;
+  //  while (irValue > 100) {
+  //    delay(25);
+  //    irValue = irSensor.movingAvgIR(IRAvg, &total, &iteration, numReadings);
+  //  }
+  //  delay(385);
+  //  leftServo.zero();
+  //  rightServo.zero();
+  //  delay(500);
+  //  shittyTurn90();
+  //  delay(500);
+  //
+  //  // IMU
+  //  boolean up = false;
+  //  boolean down = false;
+  //  boolean straight = false;
+  //  boolean mid = false;
+  //  leftServo.fast();
+  //  rightServo.fast();
+  //  delay(1000);
+  //  while (!up || !down || !straight || !mid) {
+  //    compass.read();
+  //    // incline
+  //    if (compass.a.y < -6400 && compass.a.y > -11000) {
+  //      leftServo.fast();
+  //      rightServo.fast();
+  //      up = true;
+  //      // decline
+  //    } else if (compass.a.y > 8900 && compass.a.y < 11000) {
+  //      leftServo.reverseSlow();
+  //      rightServo.reverseSlow();
+  //      down = true;
+  //      // ramp
+  //    } else if (compass.a.y > 600 && compass.a.y < 1500) {
+  //      leftServo.slow();
+  //      rightServo.slow();
+  //      mid = true;
+  //      // ground
+  //    } else if (compass.a.y > 2000 && compass.a.y < 4000) {
+  //      leftServo.slow();
+  //      rightServo.slow();
+  //      if (up && down && mid) {
+  //        straight = true;
+  //      }
+  //    }
+  //    delay(100);
+  //  }
+  //
+  //  leftServo.zero();
+  //  rightServo.zero();
+  //  delay(500);
+  //  shittyTurn90();
+  //  delay(500);
+  //
+  //  while (true) {
+  //    unsigned int left = leftSonar.ping_cm();
+  //    delay(25);
+  //    unsigned int right = rightSonar.ping_cm();
+  //    int average = (left + right) / 2;
+  //    if (average > 0 && left < 30 && right < 30) {
+  //      leftServo.zero();
+  //      rightServo.zero();
+  //      while (true) {}
+  //    } else {
+  //      leftServo.fast();
+  //      rightServo.fast();
+  //    }
+  //  }
 }
