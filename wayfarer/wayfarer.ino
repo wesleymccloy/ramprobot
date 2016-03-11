@@ -11,6 +11,10 @@
 #define ECHO_PIN_RIGHT 10
 #define MAX_DISTANCE 200
 
+#define LEFT_LED 42
+#define RIGHT_LED 40
+
+
 NewPing leftSonar(TRIG_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE);
 NewPing rightSonar(TRIG_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
 
@@ -21,6 +25,8 @@ NewPing rightSonar(TRIG_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
 // Adjusted fast speed and slow
 ServoWayfarer leftServo(44, 96, 0, 7, 17, -6, -20); // pin, zeroAngle, direction, slow, fast, reverseSlow, reverseFast
 ServoWayfarer rightServo(46, 98, 1, 6, 30, -7, -25);
+
+Servo brake;
 
 IRWayfarer irSensor(A0);
 
@@ -57,10 +63,21 @@ void setup() {
   rightServo.zero();
   leftServo.attach(44); /// this shouldn't need to be here
   rightServo.attach(46);
+  
+  brake.attach(5);
+  
   for (int i = 0; i < numReadings; i++) {
     IRAvg[i] = 500;
   }
   pinMode(A0, INPUT);
+
+  // LEDs
+  pinMode(LEFT_LED, OUTPUT);
+  pinMode(RIGHT_LED, OUTPUT);
+
+  digitalWrite(LEFT_LED, LOW);
+  digitalWrite(RIGHT_LED, LOW);
+
   delay(50);
 }
 
@@ -109,50 +126,90 @@ boolean test = true;
 void loop() {
 
   // Simple motor test
-  leftServo.slow();
-  rightServo.slow();
-  delay(100);
-
+    brake.write(30);
+    
+//    rightServo.slow();
+    delay(2000);
+    brake.write(180);
+    delay(2000);
 
 
   // To test Ultrasonic
-  //  uint8_t left = leftSonar.ping_cm();
-  //  delay(50);
-  //  uint8_t right = rightSonar.ping_cm();
-  //  delay(50);
-  //  Serial.print("left: ");
-  //  Serial.print(left);
-  //  Serial.print(" right: ");
-  //  Serial.println(right);
-
-  // To find post
-  //  delay(1000);
-  //
-  //  leftServo.reverseSlow();
-  //  rightServo.slow();
-  //  int delta = 100;
-  //  int average = 200;
-  //  uint8_t left = 200;
-  //  uint8_t right = 200;
-  //  while (average > 180 || delta > 5) {
-  //    left = leftSonar.ping_cm();
-  //    delay(50);
-  //    right = rightSonar.ping_cm();
-  //    delay(50);
+  //    uint8_t left = leftSonar.ping_cm();
   //    if (left == 0) {
-  //      left = 200;
+  //      left = MAX_DISTANCE;
   //    }
-  //    if (right == 0) {
-  //      right = 200;
-  //    }
-  //    delta = abs(right - left);
-  //    average = (left + right) / 2;
-  //  }
-  //  leftServo.zero();
-  //  rightServo.zero();
-  //  delay(200);
-  //  leftServo.fast();
-  //  rightServo.fast();
+  //    Serial.println(left);
+  //    delay(50);
+
+  
+//  // To find post
+//  //    delay(1000);
+//  //    leftServo.reverseSlow();
+//  //    rightServo.slow();
+//  int delta = 100;
+//  int average = 200;
+//  uint8_t left = 200;
+//  uint8_t right = 200;
+////  uint8_t runningAverage[3] = { MAX_DISTANCE, MAX_DISTANCE, MAX_DISTANCE};
+////  int total = MAX_DISTANCE * 3;
+////  int i = 0;
+//  int previous = MAX_DISTANCE; 
+//  int count = 0;
+//  int gatedDefault = 200;
+//  while (true) { //average > 170 || delta > 5) {
+//    left = leftSonar.ping_cm();
+//    delay(25);
+////    right = rightSonar.ping_cm();
+////    delay(25);
+//    if (left == 0) {
+//      left = MAX_DISTANCE;
+//    }
+////    if (right == 0) {
+////      right = MAX_DISTANCE;
+////    }
+////    delta = abs(right - left);
+////    average = (left + right) / 2;
+//      average = left;
+//    if (abs(average - previous) < 30 ){//&& delta <= 10) {
+//        count++;
+//        if (count >= 5) {
+//          gatedDefault = average;
+//          previous = average;
+//        } else {
+//          previous = average;
+//          average = gatedDefault;
+//        }
+//    } else {
+//      previous = average;
+//      average = gatedDefault;
+//      count = 0;
+//    }
+//    Serial.println(average);
+////    total = total - runningAverage[i];
+////    runningAverage[i] = average;
+////    total = total + average;
+//    
+//    //    Serial.print("left: ");
+//    //    Serial.print(left);
+//    //    Serial.print(" right: ");
+//    //    Serial.print(right);
+//    //    Serial.print(" average: ");
+//    //    Serial.print(average);
+//    //    Serial.print(" delta: ");
+//    //    Serial.println(delta);
+//  }
+
+  //
+  //  Serial.println("POST DETECTED!");
+  //  // Post detected
+  //  digitalWrite(LEFT_LED, HIGH);
+  //  digitalWrite(RIGHT_LED, HIGH);
+  //    leftServo.zero();
+  //    rightServo.zero();
+  //    delay(200);
+  //    leftServo.fast();
+  //    rightServo.fast();
   //  while (left > 5 && right > 5) {
   //    left = leftSonar.ping_cm();
   //    delay(50);
@@ -165,9 +222,9 @@ void loop() {
   //      right = 200;
   //    }
   //  }
-  //  leftServo.zero();
-  //  rightServo.zero();
-  //  while(true) {
+  //    leftServo.zero();
+  //    rightServo.zero();
+  //  while (true) {
   //    delay(1000);
   //  }
 
