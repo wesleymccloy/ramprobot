@@ -138,16 +138,16 @@ void shittyTurn90() {
 }
 
 int gatedValueFilter(int newValue, int* previousValue, int* gatedValue, int* count, int changeThreshold, int howManyInARow) {
-  if (abs(newValue - previousValue) < changeThreshold) {
+  if (abs(newValue - *previousValue) < changeThreshold) {
     count++;
-    if (count >= howManyInARow) {
-      gatedValue = newValue;
+    if (*count >= howManyInARow) {
+      *gatedValue = newValue;
     }
   } else {
-    count = 0;
+    *count = 0;
   }
-  previousValue = newValue;
-  return gatedValue;
+  *previousValue = newValue;
+  return *gatedValue;
 }
 
 void IRTest() 
@@ -304,7 +304,8 @@ void findRamp() {
   double irValue = MAX_DISTANCE;
   while (irValue > 50) {
     // TODO fix following
-    irValue.irSensor.movingAvgIR(IRAvg, &total, &iteration, NUMBER_OF_READINGS);
+    irValue = irSensor.movingAvgIR(IRAvg, &total, &iteration, NUMBER_OF_READINGS);
+    delay(20);
   }
 }
 
