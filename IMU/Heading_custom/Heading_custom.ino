@@ -20,8 +20,20 @@ void setup() {
   //  compass.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
 
   // Calibrated values:
-  compass.m_min = (LSM303::vector<int16_t>){ -2093,  -2870,  -3099};
-  compass.m_max = (LSM303::vector<int16_t>){ +3092,  +2093,  +2206};
+  /*
+  compass.m_min = (LSM303::vector<int16_t>) {
+    -2449,  -2818,  -2794
+  };
+  compass.m_max = (LSM303::vector<int16_t>) {
+    +2718,  +2844,  +3387
+  };
+  */
+  compass.m_min = (LSM303::vector<int16_t>) {
+    -2449,  -2818,  -2794
+  };
+  compass.m_max = (LSM303::vector<int16_t>) {
+    +2718,  +2844,  +3387
+  };
 }
 
 void loop() {
@@ -46,7 +58,16 @@ void loop() {
   to use the +Z axis as a reference.
   */
   float heading = compass.heading();
-  
+//  Serial.print(0);
+//  Serial.print(",");
+//  Serial.print(90);
+//  Serial.print(",");
+//  Serial.print(180);
+//  Serial.print(",");
+//  Serial.print(270);
+//  Serial.print(",");
+//  Serial.print(360);
+//  Serial.print(",");
   Serial.println(heading);
   delay(100);
 }

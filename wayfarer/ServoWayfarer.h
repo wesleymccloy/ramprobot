@@ -13,13 +13,14 @@
 class ServoWayfarer : public Servo
 {
   public:
-    ServoWayfarer(int pin, int zeroAngle, bool direction, int slow, int fast, int reverseSlow, int reverseFast);
+    ServoWayfarer(int zeroAngle, bool direction, int slow, int fast, int reverseSlow, int reverseFast, int slowRotate);
     void percentSpeed(int percent);
     void zero();
     void slow();
     void fast();
     void reverseSlow();
     void reverseFast();
+    void slowRotate();
 
   private:
     int _zeroAngle;
@@ -28,6 +29,7 @@ class ServoWayfarer : public Servo
     int _fast;
     int _reverseSlow;
     int _reverseFast;
+    int _slowRotate;
 };
 
 #endif
