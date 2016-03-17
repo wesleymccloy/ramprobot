@@ -8,7 +8,7 @@
 #include <Servo.h> // not necessary I don't think
 #include "ServoWayfarer.h"
 
-ServoWayfarer::ServoWayfarer(int zeroAngle, bool direction, int slow, int fast, int reverseSlow, int reverseFast, int slowRotate) : Servo() {
+ServoWayfarer::ServoWayfarer(int zeroAngle, bool direction, int slow, int fast, int reverseSlow, int reverseFast, int slowRotate, int slowRamp) : Servo() {
   _direction = direction;
   _zeroAngle = zeroAngle;
   if (!_direction) {
@@ -17,12 +17,14 @@ ServoWayfarer::ServoWayfarer(int zeroAngle, bool direction, int slow, int fast, 
     _reverseSlow = -reverseSlow;
     _reverseFast = -reverseFast;
     _slowRotate = -slowRotate;
+    _slowRamp = -slowRamp;
   } else {
     _slow = slow;
     _fast = fast;
     _reverseSlow = reverseSlow;
     _reverseFast = reverseFast;
     _slowRotate = slowRotate;
+    _slowRamp = slowRamp;
   }
 }
 
@@ -50,7 +52,10 @@ void ServoWayfarer::slowRotate() {
   Servo::write(_zeroAngle + _slowRotate);
   return;
 }
-
+void ServoWayfarer::slowRamp() {
+  Servo::write(_zeroAngle + _slowRamp);
+  return;
+}
 
 void ServoWayfarer::percentSpeed(int percent) {
   int angleOffset = 0;

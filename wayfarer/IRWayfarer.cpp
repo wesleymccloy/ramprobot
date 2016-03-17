@@ -14,7 +14,6 @@ IRWayfarer::IRWayfarer(int pin) {
 double IRWayfarer::linearizeIR()
 { 
   int distance = analogRead(_pin); 
-
   return (2061.19) / pow(distance, 0.983284);
 }
 
