@@ -12,8 +12,34 @@
 
 // Tweak parameters
 #define TURN_ONTO_RAMP_DELAY 600
-#define TURN_AT_BASE_DELAY 680
-#define TURN_AT_POST_DELAY 600
+#define TURN_AT_BASE_DELAY 790
+#define TURN_AT_POST_DELAY 650
+#define DRIVE_PAST_RAMP_DISTANCE 4
+
+// Fully charged 9V at 8.3 battery at 7.17V - dist = 5 (fast)
+
+// works with slow and dist = 5 - 9V at 8.1 battery at 7.00V
+// same as above: turn at base = 740 (700 initially), at post = 680, onto ramp = 600
+
+// fully charged: 7.21V for the battery. 8.21V for the 9V
+
+// 6 worked. base angle too little, dirty wheels maybe
+// 8.18V for 9V, battery at 7.09
+
+// works, like half the time
+// 7.94V for 9V, battery at 7V
+
+// changing to 7, doesn't go far enough
+// jerking forwards a tiny bit
+
+// jerked once
+// 7.86V for 9V, 6.96V battery
+
+// shit hit the fan, back to 4 and fast speed, worked twice
+
+// 7.9V for 9V, battery at 
+
+// fully charged. d = 4. failed 3 times, worked once. trying to reproduce
 
 // Ultrasonic sensors
 #define TRIG_PIN_LEFT 9
@@ -44,7 +70,7 @@ NewPing sideSonar(TRIG_PIN_SIDE, ECHO_PIN_SIDE, MAX_DISTANCE);
 //ServoWayfarer rightServo(46, 98, 1, 6, 25, -7, -25);
 
 // Adjusted values -> will need to change for new motors
-ServoWayfarer leftServo(95, 0, 8, 24, -7, -20, -3, 7); // pin, zeroAngle, direction, slow, fast, reverseSlow, reverseFast
+ServoWayfarer leftServo(95, 0, 7, 24, -7, -20, -3, 7); // zeroAngle, direction, slow, fast, reverseSlow, reverseFast
 ServoWayfarer rightServo(95, 1, 6, 27, -7, -23, 3, 4);
 
 // IMU
@@ -154,7 +180,7 @@ void driveToPost() {
     if (compass.a.y < -4000 && compass.a.y > -10000) {
 #if RUN_MOTORS
       digitalWrite(LEFT_LED, HIGH);
-      delay(700);
+      delay(600);
       leftServo.zero();
       rightServo.zero();
 #endif
@@ -163,7 +189,7 @@ void driveToPost() {
     if (compass.a.x < -4000 || compass.a.x > 4000) {
 #if RUN_MOTORS
       digitalWrite(RIGHT_LED, HIGH);
-      delay(300);
+      delay(200);
       leftServo.zero();
       rightServo.zero();
 #endif
@@ -192,7 +218,11 @@ boolean driveTillPostOnLeft() {
     }
     side = gatedValueFilter(side, &previous, &gated, &count, 30, 5);
     compass.read();
-    if ((compass.a.y < -4000 && compass.a.y > -10000) || (compass.a.x < -4000 || compass.a.x > 4000)) {
+    if (compass.a.y < -4000 && compass.a.y > -10000) {
+      digitalWrite(LEFT_LED, HIGH);
+      return false;
+    } else if (compass.a.x < -4000 || compass.a.x > 4000) {
+      digitalWrite(RIGHT_LED, HIGH);
       return false;
     }
 #if DEBUG
@@ -365,7 +395,7 @@ void findRamp() {
   int distanceToWall = stabilizedUltrasonicDistanceRunningAverage(10);
   leftServo.fast();
   rightServo.fast();
-  exitWhenUltrasonicAt(distanceToWall - 6, distanceToWall); // half ramp width
+  exitWhenUltrasonicAt(distanceToWall - DRIVE_PAST_RAMP_DISTANCE, distanceToWall); // half ramp width
   leftServo.zero();
   rightServo.zero();
 }
@@ -421,15 +451,21 @@ void exitWhenUltrasonicAt(int distance, int startValue) {
       average = gated;
     }
 #if DEBUG
-    Serial.print(average);
+    Serial.print(startValue);
     Serial.print(",");
-    Serial.println(15);
+    Serial.print(distance);
+    Serial.print(",");
+    Serial.println(average);
+    //    Serial.print(average);
+    //    Serial.print(",");
+    //    Serial.println(distance);
 #endif
     if (average <= distance ) {
       return;
     }
   }
 }
+/*
 void climbOntoRamp() {
   // Before being on ramp
   leftServo.fast();
@@ -497,46 +533,45 @@ void wheelied() {
   leftServo.fast();
   rightServo.fast();
 }
+*/
 
 void loop() {
   while (digitalRead(BUTTON) == LOW) {};
-  digitalWrite(LEFT_LED, LOW);
-  digitalWrite(RIGHT_LED, LOW);
-  delay(1000);
-  findRamp();
-  delay(500);
-  turnOntoRamp();
-  delay(500);
-//  climbOntoRamp();
-//  delay(500);
-  climbRamp();
-  delay(1500); // changed to see if we get better alignment
-  driveTillCloseToWall();
-  delay(500);
-  turnAtBase();
-  delay(500);
-
-  digitalWrite(RIGHT_LED, LOW);
-  digitalWrite(LEFT_LED, LOW);
-  if (driveTillPostOnLeft()) {
-    // added delay before turn, for better centering
-    leftServo.fast();
-    rightServo.fast();
-    delay(300);
-    leftServo.zero();
-    rightServo.zero();
+    digitalWrite(LEFT_LED, LOW);
+    digitalWrite(RIGHT_LED, LOW);
+    delay(1000);
+    findRamp();
     delay(500);
-    turnAtPost();
+    turnOntoRamp();
     delay(500);
-
-    driveToPost();
-  } else {
-    leftServo.fast();
-    rightServo.fast();
-    delay(200);
-    leftServo.zero();
-    rightServo.zero();
-  }
-
-
+    //  climbOntoRamp();
+    //  delay(500);
+    climbRamp();
+    delay(1500); // changed to see if we get better alignment
+    driveTillCloseToWall();
+    delay(500);
+    turnAtBase();
+    delay(500);
+  
+    digitalWrite(RIGHT_LED, LOW);
+    digitalWrite(LEFT_LED, LOW);
+    if (driveTillPostOnLeft()) {
+      // added delay before turn, for better centering
+      leftServo.fast();
+      rightServo.fast();
+      delay(300);
+      leftServo.zero();
+      rightServo.zero();
+      delay(500);
+      turnAtPost();
+      delay(500);
+  
+      driveToPost();
+    } else {
+      leftServo.fast();
+      rightServo.fast();
+      delay(200);
+      leftServo.zero();
+      rightServo.zero();
+    }
 }
