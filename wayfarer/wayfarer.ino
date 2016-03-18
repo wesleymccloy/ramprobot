@@ -153,18 +153,21 @@ void driveToPost() {
     compass.read();
     if (compass.a.y < -4000 && compass.a.y > -10000) {
 #if RUN_MOTORS
+      digitalWrite(LEFT_LED, HIGH);
       delay(700);
       leftServo.zero();
       rightServo.zero();
 #endif
       break;
     }
-    if (compass.a.x < -3000 || compass.a.x > 3000) {
+    if (compass.a.x < -4000 || compass.a.x > 4000) {
 #if RUN_MOTORS
+      digitalWrite(RIGHT_LED, HIGH);
       delay(300);
       leftServo.zero();
       rightServo.zero();
 #endif
+      break;
     }
     delay(20);
   }
@@ -189,7 +192,7 @@ boolean driveTillPostOnLeft() {
     }
     side = gatedValueFilter(side, &previous, &gated, &count, 30, 5);
     compass.read();
-    if ((compass.a.y < -4000 && compass.a.y > -10000) || (compass.a.x < -3000 || compass.a.x > 3000)) {
+    if ((compass.a.y < -4000 && compass.a.y > -10000) || (compass.a.x < -4000 || compass.a.x > 4000)) {
       return false;
     }
 #if DEBUG
@@ -320,20 +323,20 @@ void climbRamp() {
 #endif
     }
     // roll thing
-//    if (compass.a.x < -2000) {
-//      leftServo.reverseSlow();
-//      rightServo.reverseSlow();
-//      delay(50);
-//      rightServo.slow();
-//      delay(50);
-//
-//    } else if (compass.a.x > 2000) {
-//      leftServo.reverseSlow();
-//      rightServo.reverseSlow();
-//      delay(50);
-//      leftServo.slow();
-//      delay(50);
-//    }
+    //    if (compass.a.x < -2000) {
+    //      leftServo.reverseSlow();
+    //      rightServo.reverseSlow();
+    //      delay(50);
+    //      rightServo.slow();
+    //      delay(50);
+    //
+    //    } else if (compass.a.x > 2000) {
+    //      leftServo.reverseSlow();
+    //      rightServo.reverseSlow();
+    //      delay(50);
+    //      leftServo.slow();
+    //      delay(50);
+    //    }
     delay(100);
   }
   leftServo.zero();
@@ -353,7 +356,7 @@ void findRamp() {
     Serial.print(",");
     Serial.println(irValue);
 #endif
-    
+
   }
   // delay(225); // do not delete
   leftServo.zero();
@@ -383,10 +386,10 @@ int stabilizedUltrasonicDistanceRunningAverage(int sampleSize) {
     if (right == 0) {
       right = MAX_DISTANCE;
     }
-    average = (left + right)/2;
+    average = (left + right) / 2;
     total += average;
   }
-  return total/sampleSize;
+  return total / sampleSize;
 }
 
 void exitWhenUltrasonicAt(int distance, int startValue) {
@@ -422,48 +425,118 @@ void exitWhenUltrasonicAt(int distance, int startValue) {
     Serial.print(",");
     Serial.println(15);
 #endif
-    if (average <= distance ){
+    if (average <= distance ) {
+      return;
+    }
+  }
+}
+void climbOntoRamp() {
+  // Before being on ramp
+  leftServo.fast();
+  rightServo.fast();
+  delay(100);
+  int count = 0;
+  compass.read();
+
+  while (true) {
+    compass.read();
+    if (compass.a.x < -4500) {
+      count = 0;
+      digitalWrite(LEFT_LED, HIGH);
+      rolledRight();
+      delay(1000);
+      digitalWrite(LEFT_LED, LOW);
+    } else if (compass.a.x > 4500) {
+      count = 0;
+      digitalWrite(RIGHT_LED, HIGH);
+      rolledLeft();
+      delay(1000);
+      digitalWrite(RIGHT_LED, LOW);
+    }
+    if (compass.a.y < -11000) {
+      count = 0;
+      digitalWrite(RIGHT_LED, HIGH);
+      digitalWrite(LEFT_LED, HIGH);
+      wheelied();
+      delay(1000);
+      digitalWrite(RIGHT_LED, LOW);
+      digitalWrite(LEFT_LED, LOW);
+    } else if (compass.a.y < -8000) { // incline
+      count++;
+    }
+    if (count >= 20) { // if incline 30 times in a row then all good.
       return;
     }
   }
 }
 
-void loop() {
-    while (digitalRead(BUTTON) == LOW) {};
+void rolledRight() {
+  leftServo.reverseSlow();
+  rightServo.reverseSlow();
+  delay(1000);
+  rightServo.slow();
+  delay(200);
+  leftServo.fast();
+  rightServo.fast();
+}
 
-    delay(1000);
-//    findRamp();
-//    delay(500);
-//    turnOntoRamp();
-//    delay(500);
-//    climbRamp();
-//    delay(1500); // changed to see if we get better alignment
-//    driveTillCloseToWall();
-//    delay(500);
-//    turnAtBase();
-//    delay(500);
-//
-//    digitalWrite(RIGHT_LED, LOW);
-//    digitalWrite(LEFT_LED, LOW);
-//    if (driveTillPostOnLeft()) {
-//      // added delay before turn, for better centering
-//      leftServo.fast();
-//      rightServo.fast();
-//      delay(300);
-//      leftServo.zero();
-//      rightServo.zero();
-//      delay(500);
-//      turnAtPost();
-//      delay(500);
-//
-//      driveToPost();
-//    } else {
-//      leftServo.fast();
-//      rightServo.fast();
-//      delay(200);
-//      leftServo.zero();
-//      rightServo.zero();
-//    }
-  driveToPost();
-    
+void rolledLeft() {
+  leftServo.reverseSlow();
+  rightServo.reverseSlow();
+  delay(1000);
+  leftServo.slow();
+  delay(200);
+  leftServo.fast();
+  rightServo.fast();
+}
+
+void wheelied() {
+  leftServo.reverseSlow();
+  rightServo.reverseSlow();
+  delay(1000);
+  leftServo.fast();
+  rightServo.fast();
+}
+
+void loop() {
+  while (digitalRead(BUTTON) == LOW) {};
+  digitalWrite(LEFT_LED, LOW);
+  digitalWrite(RIGHT_LED, LOW);
+  delay(1000);
+  findRamp();
+  delay(500);
+  turnOntoRamp();
+  delay(500);
+//  climbOntoRamp();
+//  delay(500);
+  climbRamp();
+  delay(1500); // changed to see if we get better alignment
+  driveTillCloseToWall();
+  delay(500);
+  turnAtBase();
+  delay(500);
+
+  digitalWrite(RIGHT_LED, LOW);
+  digitalWrite(LEFT_LED, LOW);
+  if (driveTillPostOnLeft()) {
+    // added delay before turn, for better centering
+    leftServo.fast();
+    rightServo.fast();
+    delay(300);
+    leftServo.zero();
+    rightServo.zero();
+    delay(500);
+    turnAtPost();
+    delay(500);
+
+    driveToPost();
+  } else {
+    leftServo.fast();
+    rightServo.fast();
+    delay(200);
+    leftServo.zero();
+    rightServo.zero();
+  }
+
+
 }
